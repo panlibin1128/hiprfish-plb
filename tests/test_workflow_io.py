@@ -63,3 +63,14 @@ def test_load_image_table_returns_dataframe(tmp_path: Path) -> None:
     loaded = workflow_io.load_image_table(table)
     assert list(loaded.columns) == ["SAMPLE", "IMAGES"]
     assert loaded.shape[0] == 1
+
+
+def test_load_required_csv_raises_for_missing_file(tmp_path: Path) -> None:
+    workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+    missing = tmp_path / "missing.csv"
+    raised = False
+    try:
+        workflow_io.load_required_csv(missing, context="input spectra")
+    except FileNotFoundError:
+        raised = True
+    assert raised

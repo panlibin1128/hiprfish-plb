@@ -45,3 +45,10 @@ def load_image_table(path: str | Path) -> pd.DataFrame:
     image_tab = pd.read_csv(path)
     require_columns(image_tab, ["SAMPLE", "IMAGES"], "image table")
     return image_tab
+
+
+def load_required_csv(path: str | Path, context: str) -> pd.DataFrame:
+    csv_path = Path(path)
+    if not csv_path.exists():
+        raise FileNotFoundError(f"{context} file not found: {csv_path}")
+    return pd.read_csv(csv_path)

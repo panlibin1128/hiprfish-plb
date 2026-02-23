@@ -9,12 +9,12 @@ import os
 import re
 import sys
 import glob
-import joblib
-import skimage
+import importlib
+from pathlib import Path
+
 import argparse
 import numpy as np
 import pandas as pd
-from skimage import measure
 
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -22,13 +22,19 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMBA_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+load_required_csv = workflow_io.load_required_csv
+
 ###############################################################################################################
 # HiPR-FISH : Image Analysis Pipeline
 ###############################################################################################################
 
 def classify_spectra(input_spectra, ref_clf):
+    joblib = importlib.import_module("joblib")
+    skimage = importlib.import_module("skimage")
     sample = re.sub('_avgint.csv', '', input_spectra)
-    avgint = pd.read_csv(input_spectra)
+    avgint = load_required_csv(input_spectra, "input_spectra")
     image_seg = np.load('{}_seg.npy'.format(sample))
     image_registered = np.load('{}_registered.npy'.format(sample))
     avgint_norm = avgint.values/np.max(avgint.values, axis = 1)[:,None]
@@ -60,7 +66,7 @@ def classify_spectra(input_spectra, ref_clf):
             cell_info['area'] = np.asarray([x.area for x in cells])
             cell_info['max_intensity'] = cell_info.loc[:, ['channel_{}'.format(i) for i in range(63)]].max(axis = 1).values
             cell_info_filename = '{}_cell_information_replicate_{}.csv'.format(sample,r)
-            cell_info.to_csv(cell_info_filename, index = None)
+            cell_info.to_csv(cell_info_filename, index = False)
     barcode_consensus = []
     cell_info = pd.read_csv('{}_cell_information_replicate_{}.csv'.format(sample, 0), dtype = {'cell_barcode':str})
     nn_dist = np.zeros((cell_info.shape[0], 20))
@@ -88,7 +94,7 @@ def classify_spectra(input_spectra, ref_clf):
         scd = np.sqrt((cx - cx_spectral)**2 + (cy - cy_spectral)**2)
         spectral_centroid_distance.append(np.median(scd))
     cell_info_consensus.loc[:,'spectral_centroid_distance'] = spectral_centroid_distance
-    cell_info_consensus.to_csv('{}_cell_information_consensus.csv'.format(sample), index = None)
+    cell_info_consensus.to_csv('{}_cell_information_consensus.csv'.format(sample), index = False)
     return
 
 def main():
