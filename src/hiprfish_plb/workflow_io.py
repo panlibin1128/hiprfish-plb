@@ -39,3 +39,9 @@ def read_probe_selection_tables(design_directory: str | Path) -> pd.DataFrame:
         require_columns(df, ["quality"], f"probe selection file {filename}")
         tables.append(df.sort_values(by=["quality"], ascending=True))
     return pd.concat(tables).sort_values(by=["quality"], ascending=True)
+
+
+def load_image_table(path: str | Path) -> pd.DataFrame:
+    image_tab = pd.read_csv(path)
+    require_columns(image_tab, ["SAMPLE", "IMAGES"], "image table")
+    return image_tab

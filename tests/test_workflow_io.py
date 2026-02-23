@@ -42,3 +42,24 @@ def test_read_probe_selection_tables_concatenates_csvs(tmp_path: Path) -> None:
     combined = workflow_io.read_probe_selection_tables(tmp_path)
     assert combined.shape[0] == 2
     assert list(combined["quality"].values) == [0.1, 0.2]
+
+
+def test_load_image_table_requires_sample_and_images(tmp_path: Path) -> None:
+    workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+    table = tmp_path / "images.csv"
+    pd.DataFrame({"SAMPLE": ["s1"]}).to_csv(table, index=False)
+    raised = False
+    try:
+        workflow_io.load_image_table(table)
+    except KeyError:
+        raised = True
+    assert raised
+
+
+def test_load_image_table_returns_dataframe(tmp_path: Path) -> None:
+    workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+    table = tmp_path / "images.csv"
+    pd.DataFrame({"SAMPLE": ["s1"], "IMAGES": ["img1"]}).to_csv(table, index=False)
+    loaded = workflow_io.load_image_table(table)
+    assert list(loaded.columns) == ["SAMPLE", "IMAGES"]
+    assert loaded.shape[0] == 1

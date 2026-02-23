@@ -3,7 +3,7 @@ from .config import ConfigContractError, load_config_json, require_profile
 from .cython_support import CythonModuleInfo, build_commands, discover_cython_modules
 from .logging_utils import get_logger
 from .paths import ensure_parent, format_contract_path, is_marker_filename
-from .workflow_io import read_probe_selection_tables, require_columns, resolve_design_context
+from .workflow_io import load_image_table, read_probe_selection_tables, require_columns, resolve_design_context
 
 __all__ = [
     "ConfigContractError",
@@ -16,6 +16,7 @@ __all__ = [
     "get_logger",
     "is_marker_filename",
     "load_config_json",
+    "load_image_table",
     "parse_common_args",
     "read_probe_selection_tables",
     "require_profile",

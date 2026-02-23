@@ -8,8 +8,16 @@ Cornell University
 import os
 import re
 import argparse
+import importlib
+import sys
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+load_image_table = workflow_io.load_image_table
 
 ###############################################################################################################
 # HiPR-FISH : Image Analysis Pipeline
@@ -17,7 +25,7 @@ import numpy as np
 
 def collect_reference_measurement_results(data_dir, simulation_table, output_filename):
     print('Loading samples table: %s' % (simulation_table))
-    sim_tab = pd.read_csv(simulation_table)
+    sim_tab = load_image_table(simulation_table)
     sim_tab['NCells'] = 0
     sim_tab['BarcodeComplexity'] = 0
     sim_tab['Barcodes'] = 0
@@ -27,7 +35,10 @@ def collect_reference_measurement_results(data_dir, simulation_table, output_fil
         print('Saving collected results to %s...' % (output_filename))
         image_folder = sim_tab.SAMPLE.values[i]
         image_name = sim_tab.IMAGES.values[i]
-        enc = int(re.sub('enc_', '', re.search('enc_[0-9]*', image_name).group(0)))
+        enc_match = re.search('enc_[0-9]*', image_name)
+        if enc_match is None:
+            raise ValueError('Cannot parse enc pattern from IMAGES: {}'.format(image_name))
+        enc = int(re.sub('enc_', '', enc_match.group(0)))
         sim_tab.loc[i, 'Barcodes'] = enc
         spectra_measurement_filename = '{}/{}/{}_avgint.csv'.format(data_dir, image_folder, image_name)
         spectra_identification_filename = '{}/{}/{}_cell_ids.txt'.format(data_dir, image_folder, image_name)
@@ -70,16 +81,19 @@ def collect_reference_measurement_results(data_dir, simulation_table, output_fil
 
 def collect_mix_measurement_results(data_dir, simulation_table, output_filename):
     print('Loading samples table: %s' % (simulation_table))
-    sim_tab = pd.read_csv(simulation_table)
+    sim_tab = load_image_table(simulation_table)
     sim_tab['NCells'] = 0
     sim_tab['FOV'] = 0
-    abundance_tab = pd.DataFrame(np.arange(1,1024), columns = ['Barcodes'])
+    abundance_tab = pd.DataFrame({'Barcodes': np.arange(1,1024)})
     print('Loading result files:')
     for i in range(0, sim_tab.shape[0]):
         print('Saving collected results to %s...' % (output_filename))
         image_folder = sim_tab.SAMPLE.values[i]
         image_name = sim_tab.IMAGES.values[i]
-        fov = int(re.sub('fov_', '', re.search('fov_[0-9]*', image_name).group(0)))
+        fov_match = re.search('fov_[0-9]*', image_name)
+        if fov_match is None:
+            raise ValueError('Cannot parse fov pattern from IMAGES: {}'.format(image_name))
+        fov = int(re.sub('fov_', '', fov_match.group(0)))
         sim_tab.loc[i, 'FOV'] = fov
         spectra_measurement_filename = '{}/{}/{}_avgint.csv'.format(data_dir, image_folder, image_name)
         spectra_identification_filename = '{}/{}/{}_cell_ids.txt'.format(data_dir, image_folder, image_name)
