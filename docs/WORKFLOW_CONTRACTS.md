@@ -184,6 +184,13 @@ python3 scripts/smoke/check_outputs.py --workflow probe_molecule --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow probe_consensus --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow image_ecoli --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow image_microbiome_gut --mode patterns
+python3 scripts/smoke/check_cython.py --repo-root .
+```
+
+Cython rebuild/import smoke (executed mode):
+
+```bash
+python3 scripts/smoke/check_cython.py --repo-root . --execute --module hiprfish-image-analysis-ecoli
 ```
 
 ## Change Control Rules for Refactor Commits

@@ -1,5 +1,6 @@
 from .cli_compat import build_common_parser, parse_common_args
 from .config import ConfigContractError, load_config_json, require_profile
+from .cython_support import CythonModuleInfo, build_commands, discover_cython_modules
 from .logging_utils import get_logger
 from .paths import ensure_parent, format_contract_path, is_marker_filename
 from .workflow_io import read_probe_selection_tables, require_columns, resolve_design_context
@@ -7,6 +8,9 @@ from .workflow_io import read_probe_selection_tables, require_columns, resolve_d
 __all__ = [
     "ConfigContractError",
     "build_common_parser",
+    "build_commands",
+    "CythonModuleInfo",
+    "discover_cython_modules",
     "ensure_parent",
     "format_contract_path",
     "get_logger",

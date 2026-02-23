@@ -78,6 +78,7 @@ python3 scripts/smoke/check_outputs.py --workflow probe_molecule --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow probe_consensus --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow image_ecoli --mode patterns
 python3 scripts/smoke/check_outputs.py --workflow image_microbiome_gut --mode patterns
+python3 scripts/smoke/check_cython.py --repo-root .
 ```
 
 ## 7) Single Script Run Commands
@@ -162,6 +163,7 @@ Agent rule: do not rename outputs without updating all dependent rules.
 For Cython edits:
 1. rebuild with `python3 setup.py build_ext --inplace`.
 2. verify module import succeeds in that module directory.
+3. optionally run `python3 scripts/smoke/check_cython.py --repo-root . --execute --module <module-dir-name>`.
 
 ## 13) Avoid By Default
 - Full-repo style rewrites.
