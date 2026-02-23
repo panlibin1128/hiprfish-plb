@@ -20,6 +20,10 @@ We would like to thank Jakob Wirbel for their help with testing the probe design
 
 This pipeline enables design of complex oligo probe sets used for highly multiplexed FISH experiments on microbial communities. The main pipeline is a snakemake workflow. There are two versions of the pipeline. The `hiprfish-probe-design-consensus` version uses the consensus approach by designing probes from the taxon consensus sequence for each taxon. The `hiprfish-probe-design-molecule` version designs probes from each individual 16S molecule from PacBio sequencing datasets and pool all unique probes for subsequent evaluation. The probe evaluation and selection is identifical in either version.  
 
+Practical input checklist (config + simulation table + fasta layout):
+
+- `docs/PROBE_DESIGN_INPUTS.md`
+
 ### Required resources
 
 The pipeline requires a local copy of the 16SMicrobial database from NCBI.
