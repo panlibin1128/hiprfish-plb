@@ -4,12 +4,19 @@ Hao Shi 2017
 """
 
 import argparse
+import importlib
 import os
-import re
-import glob
+import sys
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
-from Bio import SeqIO
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+
+workflow_io = importlib.import_module("hiprfish_plb.workflow_io")
+read_probe_selection_tables = workflow_io.read_probe_selection_tables
+require_columns = workflow_io.require_columns
+resolve_design_context = workflow_io.resolve_design_context
 
 ###############################################################################################################
 # HiPR-FISH : collect probe design results
@@ -17,17 +24,12 @@ from Bio import SeqIO
 
 def collect_taxon_best_probes(design_directory, sim_input_filename, taxon_best_probes_filtered_filename, output_probes_summary_filename, bot):
     simulation_directory, design_id = os.path.split(design_directory)
-    data_dir = os.path.split(simulation_directory)[0]
     sim_tab = pd.read_csv(sim_input_filename)
-    sample = sim_tab[sim_tab.DESIGN_ID == design_id].SAMPLE.values[0]
-    target_rank = sim_tab[sim_tab.DESIGN_ID == design_id].TARGET_RANK.values[0]
-    taxon_evaluation_filename_list = glob.glob(design_directory + '/*_probe_selection.csv')
-    best_probes_list = [pd.read_csv(filename) for filename in taxon_evaluation_filename_list]
-    best_probes_quality_sorted_list = [df.sort_values(by = ['quality'], ascending = True) for df in best_probes_list]
-    best_probes_df = pd.concat(best_probes_quality_sorted_list)
+    resolve_design_context(sim_tab, design_id)
+    best_probes_df = read_probe_selection_tables(design_directory)
+    require_columns(best_probes_df, ["blast_on_target_rate", "target_taxon"], "probe selections")
     best_probes_filtered = best_probes_df[best_probes_df['blast_on_target_rate'] > bot]
-    best_probes_filtered_summary = best_probes_filtered['target_taxon'].value_counts()
-    best_probes_filtered_summary.columns = ['taxon', 'probe_counts']
+    best_probes_filtered_summary = pd.Series(best_probes_filtered["target_taxon"]).value_counts()
     best_probes_filtered.to_csv(taxon_best_probes_filtered_filename, index = False)
     best_probes_filtered_summary.to_csv(output_probes_summary_filename)
     return
