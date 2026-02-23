@@ -6,7 +6,7 @@ Use these commands and conventions unless newer local rules override them.
 - Language: Python + Cython.
 - Orchestration: Snakemake.
 - Top-level packaging metadata: not present (`pyproject.toml` missing).
-- Tests: not present (no `tests/`, no pytest config).
+- Tests: minimal pytest suite present under `tests/`.
 - Lint/type config: not present.
 
 ## 2) Cursor / Copilot Rules Status
@@ -90,14 +90,20 @@ Use the exact script call patterns found in the matching `Snakefile` `shell:` bl
 
 ## 8) Test Commands (Including Single Test)
 Current state:
-- No committed automated tests.
-- No official test command.
-- No official single-test command.
-If pytest tests are introduced later, use:
+- Minimal pytest unit tests exist for config/path/CLI compatibility layers.
+Recommended commands:
+
+```bash
+pytest -q
+pytest tests/test_config.py::test_require_profile_passes_for_minimum_probe_molecule -q
+```
+
+Single-test pattern:
+
 ```bash
 pytest tests/path/test_file.py::test_case_name -q
 ```
-Until then, validate by:
+For workflow-sensitive changes, also validate by:
 1. `snakemake -n` on impacted workflow.
 2. Running touched script on small representative input.
 3. Verifying expected output files/markers exist.
